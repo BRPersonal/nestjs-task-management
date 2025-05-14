@@ -30,4 +30,15 @@ export class TasksService {
         return task;
 
     }
+
+    public deleteTask(id:string) {
+        this.removeObjectWithId(this.tasks,id);
+    }
+
+    private removeObjectWithId(arr:Task[], id:String) {
+        const index = arr.findIndex(obj => obj.id === id);
+        if (index > -1) {
+          arr.splice(index, 1);
+        }
+      }    
 }
