@@ -1,8 +1,11 @@
 import { Controller,Get,Post,Delete,Patch,Body,Param,Query } from '@nestjs/common';
+import { IsEnum } from 'class-validator';
 import { TasksService} from './tasks.service';
 import {Task,TaskStatus} from './task.model';
 import {CreateTaskDto} from './dto/create-task.dto';
-import {GetTasksFilterDto} from './dto/get-tasks-filter.dto'
+import {GetTasksFilterDto} from './dto/get-tasks-filter.dto';
+import {UpdateTaskStatusDto} from './dto/update-task-status.dto';
+
 
 @Controller('/tasks')
 export class TasksController {
@@ -46,7 +49,8 @@ export class TasksController {
     @Patch('/:id/status')
     public updateTaskStatus(
         @Param('id') id:string,
-        @Body('status') status:TaskStatus):Task {
+        @Body() statusDto:UpdateTaskStatusDto) : Task {
+            const {status} = statusDto;
             return this.service.updateTaskStatus(id,status);
 
     }

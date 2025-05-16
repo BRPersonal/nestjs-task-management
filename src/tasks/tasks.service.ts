@@ -8,7 +8,7 @@ import {GetTasksFilterDto} from './dto/get-tasks-filter.dto'
 export class TasksService {
     private tasks:Task[] = [];
 
-    public getAllTasks() :Task[] {
+public getAllTasks() :Task[] {
         return this.tasks;
     }
 
@@ -24,7 +24,6 @@ export class TasksService {
 
     public getFilteredTasks(filter:GetTasksFilterDto):Task[] {
 
-        console.log('getFilteredTasks called');
         const {status,search} = filter;
         let result = this.tasks;
 
