@@ -1,25 +1,33 @@
 import { Injectable,NotFoundException } from '@nestjs/common';
-import {Task,TaskStatus} from './task.model';
-import {v4 as uuid} from 'uuid';
+import {Task} from './task.entity';
+import {TaskStatus} from './task-status.enum';
 import {CreateTaskDto} from './dto/create-task.dto';
 import {GetTasksFilterDto} from './dto/get-tasks-filter.dto'
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class TasksService {
-    private tasks:Task[] = [];
+    private tasks:Task[] = [];  //we will remove it later
 
-public getAllTasks() :Task[] {
-        return this.tasks;
-    }
+    constructor(
+        @InjectRepository(Task)
+        private tasksRepository: Repository<Task>,
+      ) {}
+    
 
-    public getTaskById(id:string) :  Task {
-        const foundTask =  this.tasks.find((task) => task.id === id);
-
-        if (!foundTask)
-        {
-            throw new NotFoundException(`Task with id ${id} not found`);
+    public getAllTasks() :Task[] {
+            return this.tasks;
         }
-        return foundTask;
+
+    public async getTaskById(id: string): Promise<Task> {
+        const found = await this.tasksRepository.findOneBy({id: id});
+    
+        if (!found) {
+          throw new NotFoundException(`Task with ID ${id} not found`);
+        }
+    
+        return found;
     }
 
     public getFilteredTasks(filter:GetTasksFilterDto):Task[] {
@@ -51,21 +59,20 @@ public getAllTasks() :Task[] {
 
     }
 
-    public createTask(createTaskDto : CreateTaskDto): Task {
-
-        //unpack dto
-        const {title, description} = createTaskDto;
-
-        const task:Task = {
-            id:uuid(),
-            title,
-            description,
-            status: TaskStatus.OPEN
-        };
-        this.tasks.push(task);
+    public async createTask(createTaskDto: CreateTaskDto): Promise<Task> {
+        const { title, description } = createTaskDto;
+    
+        const task = this.tasksRepository.create({
+          title,
+          description,
+          status: TaskStatus.OPEN,
+        });
+    
+        await this.tasksRepository.save(task);
         return task;
-
     }
+
+    
 
     public deleteTask(id:string):void {
         const lengthBefore = this.tasks.length;
@@ -80,11 +87,11 @@ public getAllTasks() :Task[] {
 
     }
 
-    public updateTaskStatus(id:string,status:TaskStatus):Task {
-        const task = this.getTaskById(id);
-        task.status = status;
-        return task;
-    }
+    // public updateTaskStatus(id:string,status:TaskStatus):Task {
+    //     const task = this.getTaskById(id);
+    //     task.status = status;
+    //     return task;
+    // }
 
     private removeObjectWithId(arr:Task[], id:String) {
         const index = arr.findIndex((t) => t.id === id);

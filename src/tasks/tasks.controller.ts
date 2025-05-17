@@ -1,7 +1,8 @@
 import { Controller,Get,Post,Delete,Patch,Body,Param,Query } from '@nestjs/common';
 import { IsEnum } from 'class-validator';
 import { TasksService} from './tasks.service';
-import {Task,TaskStatus} from './task.model';
+import {Task} from './task.entity';
+import {TaskStatus} from './task-status.enum';
 import {CreateTaskDto} from './dto/create-task.dto';
 import {GetTasksFilterDto} from './dto/get-tasks-filter.dto';
 import {UpdateTaskStatusDto} from './dto/update-task-status.dto';
@@ -14,9 +15,8 @@ export class TasksController {
     }
 
     @Get('/:id')
-    public getTaskById(@Param('id') id:string):Task {
-        return this.service.getTaskById(id);
-
+    public async getTaskById(@Param('id') id: string): Promise<Task> {
+      return await this.service.getTaskById(id);
     }
 
     @Get()
@@ -34,10 +34,10 @@ export class TasksController {
     }
 
     @Post()
-    public createTask(
-        @Body() createTaskDto : CreateTaskDto) : Task
+    public async createTask(
+        @Body() createTaskDto : CreateTaskDto) : Promise<Task>
     {
-        return this.service.createTask(createTaskDto);
+        return await this.service.createTask(createTaskDto);
     }
 
     @Delete('/:id')
@@ -46,12 +46,12 @@ export class TasksController {
 
     }
 
-    @Patch('/:id/status')
-    public updateTaskStatus(
-        @Param('id') id:string,
-        @Body() statusDto:UpdateTaskStatusDto) : Task {
-            const {status} = statusDto;
-            return this.service.updateTaskStatus(id,status);
+    // @Patch('/:id/status')
+    // public updateTaskStatus(
+    //     @Param('id') id:string,
+    //     @Body() statusDto:UpdateTaskStatusDto) : Task {
+    //         const {status} = statusDto;
+    //         return this.service.updateTaskStatus(id,status);
 
-    }
+    // }
 }
