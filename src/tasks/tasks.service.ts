@@ -8,17 +8,12 @@ import { Repository } from 'typeorm';
 
 @Injectable()
 export class TasksService {
-    private tasks:Task[] = [];  //we will remove it later
 
     constructor(
         @InjectRepository(Task)
         private tasksRepository: Repository<Task>,
       ) {}
     
-
-    public getAllTasks() :Task[] {
-            return this.tasks;
-        }
 
     public async getTaskById(id: string): Promise<Task> {
         const found = await this.tasksRepository.findOneBy({id: id});
@@ -30,32 +25,24 @@ export class TasksService {
         return found;
     }
 
-    public getFilteredTasks(filter:GetTasksFilterDto):Task[] {
-
-        const {status,search} = filter;
-        let result = this.tasks;
-
-        //if status filter is present
-        if(status) {
-            result = result.filter((t) => t.status === status);
-        }
-
-        //if search is present
-        if(search) {
-            result = result.filter((t) => {
-                if (t.title.includes(search) || t.description.includes(search))
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-
-            });
-        }
-
-        return result;
+    public async getTasks(filterDto:GetTasksFilterDto) : Promise<Task[]> {
+        const { status, search } = filterDto;
+        const qb = this.tasksRepository.createQueryBuilder('task');
+        
+        if (status) {
+            qb.andWhere('task.status = :status', 
+                { status: status });
+          }
+      
+          if (search) {
+            qb.andWhere(
+              'LOWER(task.title) LIKE LOWER(:search) OR LOWER(task.description) LIKE LOWER(:search)',
+              { search: `%${search}%` },
+            );
+          }
+      
+          const tasks = await qb.getMany();
+          return tasks;
 
     }
 
@@ -72,31 +59,20 @@ export class TasksService {
         return task;
     }
 
-    
+    public async deleteTask(id:string):Promise<void> {
+        const result = await this.tasksRepository.delete({id: id});
 
-    public deleteTask(id:string):void {
-        const lengthBefore = this.tasks.length;
-
-        this.removeObjectWithId(this.tasks,id);
-
-        const lengthAfter = this.tasks.length;
-
-        if (lengthBefore === lengthAfter){
+        if (result.affected === 0){
             throw new NotFoundException(`Task with id ${id} not found`); 
         }
 
     }
 
-    // public updateTaskStatus(id:string,status:TaskStatus):Task {
-    //     const task = this.getTaskById(id);
-    //     task.status = status;
-    //     return task;
-    // }
+    public async updateTaskStatus(id:string,status:TaskStatus):Promise<Task> {
+        const task = await this.getTaskById(id);
+        task.status = status;
+        this.tasksRepository.save(task);
+        return task;
+    }
 
-    private removeObjectWithId(arr:Task[], id:String) {
-        const index = arr.findIndex((t) => t.id === id);
-        if (index > -1) {
-          arr.splice(index, 1);
-        }
-      }    
 }

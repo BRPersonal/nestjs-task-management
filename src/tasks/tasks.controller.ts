@@ -20,17 +20,9 @@ export class TasksController {
     }
 
     @Get()
-    public getTasks(@Query() filter : GetTasksFilterDto) : Task[] {
+    public async getTasks(@Query() filterDto : GetTasksFilterDto) : Promise<Task[]> {
 
-        if (Object.keys(filter).length > 0) {
-            return this.service.getFilteredTasks(filter);
-        }
-        else
-        {
-            return this.service.getAllTasks();
-
-        }
-        
+        return await this.service.getTasks(filterDto);
     }
 
     @Post()
@@ -41,17 +33,17 @@ export class TasksController {
     }
 
     @Delete('/:id')
-    public deleteTask(@Param('id') id:string):void {
-        this.service.deleteTask(id);
+    public async deleteTask(@Param('id') id:string):Promise<void> {
+        await this.service.deleteTask(id);
 
     }
 
-    // @Patch('/:id/status')
-    // public updateTaskStatus(
-    //     @Param('id') id:string,
-    //     @Body() statusDto:UpdateTaskStatusDto) : Task {
-    //         const {status} = statusDto;
-    //         return this.service.updateTaskStatus(id,status);
+    @Patch('/:id/status')
+    public async updateTaskStatus(
+        @Param('id') id:string,
+        @Body() statusDto:UpdateTaskStatusDto) : Promise<Task> {
+            const {status} = statusDto;
+            return await this.service.updateTaskStatus(id,status);
 
-    // }
+    }
 }
