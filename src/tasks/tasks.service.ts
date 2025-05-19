@@ -30,8 +30,8 @@ export class TasksService {
         const qb = this.tasksRepository.createQueryBuilder('task');
         
         if (status) {
-            qb.andWhere('task.status = :status', 
-                { status: status });
+            qb.andWhere('task.status = :filter_status', 
+                { filter_status: status });
           }
       
           if (search) {
