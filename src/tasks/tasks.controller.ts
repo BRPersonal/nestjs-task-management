@@ -1,4 +1,4 @@
-import { Controller,Get,Post,Delete,Patch,Body,Param,Query } from '@nestjs/common';
+import { Controller,Get,Post,Delete,Patch,Body,Param,Query,UseGuards } from '@nestjs/common';
 import { IsEnum } from 'class-validator';
 import { TasksService} from './tasks.service';
 import {Task} from './task.entity';
@@ -6,9 +6,10 @@ import {TaskStatus} from './task-status.enum';
 import {CreateTaskDto} from './dto/create-task.dto';
 import {GetTasksFilterDto} from './dto/get-tasks-filter.dto';
 import {UpdateTaskStatusDto} from './dto/update-task-status.dto';
-
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('/tasks')
+@UseGuards(AuthGuard())
 export class TasksController {
     constructor(private service : TasksService)
     {

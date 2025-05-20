@@ -6,17 +6,17 @@ import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({isGlobal: true}),
     TasksModule,
     TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'postgres',
-      password: 'postgres',
-      database: 'task-management',
+      type: process.env.DB_TYPE as any, // Type assertion to solve the type error
+      host: process.env.DB_HOST,
+      port: parseInt(process.env.DB_PORT, 10), // Convert string to number
+      username: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_DATABASE,
       autoLoadEntities: true,
-      synchronize: true
+      synchronize: true      
     }),
     AuthModule    
   ]
