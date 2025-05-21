@@ -22,9 +22,10 @@ export class TasksRepository {
         return await this.taskRepository.findOneBy({id});
     }
 
-    public async getTasks(filterDto:GetTasksFilterDto) : Promise<Task[]> {
+    public async getTasks(filterDto:GetTasksFilterDto,user:User) : Promise<Task[]> {
         const { status, search } = filterDto;
         const qb = this.taskRepository.createQueryBuilder('task');
+        qb.where({ user });
         
         if (status) {
             qb.andWhere('task.status = :filter_status', 
@@ -33,7 +34,7 @@ export class TasksRepository {
       
           if (search) {
             qb.andWhere(
-              'LOWER(task.title) LIKE LOWER(:search) OR LOWER(task.description) LIKE LOWER(:search)',
+              '(LOWER(task.title) LIKE LOWER(:search) OR LOWER(task.description) LIKE LOWER(:search))',
               { search: `%${search}%` },
             );
           }
