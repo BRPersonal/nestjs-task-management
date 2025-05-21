@@ -32,7 +32,7 @@ export class TasksService {
     }
 
     public async deleteTask(id:string, user: User):Promise<void> {
-        const deleteCount = await this.repository.deleteTask(id);
+        const deleteCount = await this.repository.deleteTask(id,user);
 
         if (deleteCount === 0){
             throw new NotFoundException(`Task with id ${id} not found`); 
