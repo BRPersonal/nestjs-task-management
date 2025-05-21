@@ -18,8 +18,8 @@ export class TasksRepository {
         return this.taskRepository;
     }
 
-    public async getTaskById(id: string): Promise<Task> {
-        return await this.taskRepository.findOneBy({id});
+    public async getTaskById(id: string,user:User): Promise<Task> {
+        return await this.taskRepository.findOne({where: {id,user}});
     }
 
     public async getTasks(filterDto:GetTasksFilterDto,user:User) : Promise<Task[]> {
