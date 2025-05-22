@@ -1,23 +1,32 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule,ConfigService } from '@nestjs/config';
+import { configValidationSchema } from './config.schema';
 import { TasksModule } from './tasks/tasks.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({isGlobal: true}),
-    TasksModule,
-    TypeOrmModule.forRoot({
-      type: process.env.DB_TYPE as any, // Type assertion to solve the type error
-      host: process.env.DB_HOST,
-      port: parseInt(process.env.DB_PORT, 10), // Convert string to number
-      username: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_DATABASE,
-      autoLoadEntities: true,
-      synchronize: true      
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: [`.env.stage.${process.env.STAGE}`],
+      validationSchema: configValidationSchema
     }),
+    TasksModule,
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        type: 'postgres', //trying to get this from env is posing lot of issues
+        autoLoadEntities: true,
+        synchronize: true,
+        host: configService.get<string>('DB_HOST'),
+        port: configService.get<number>('DB_PORT'),
+        username: configService.get<string>('DB_USER'),
+        password: configService.get<string>('DB_PASSWORD'),
+        database: configService.get<string>('DB_DATABASE'),
+      })
+    }),    
     AuthModule    
   ]
 
