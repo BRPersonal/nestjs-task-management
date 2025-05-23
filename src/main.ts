@@ -16,10 +16,12 @@ async function bootstrap() {
 
   const port = configService.get('PORT');
   const secret = configService.get('JWT_SECRET');
+  const dbType = configService.get('DB_TYPE');
   await app.listen(port);
   
   logger.log(`Application running in port ${port}`);
   logger.log(`secret=${secret}`);
+  logger.log(`dbType=${dbType}`);
 }
 
 bootstrap();

@@ -17,7 +17,7 @@ import { AuthModule } from './auth/auth.module';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
-        type: 'postgres', //trying to get this from env is posing lot of issues
+        type: configService.get<string>('DB_TYPE') as 'postgres' | 'mysql' | 'sqlite' | 'mariadb', 
         autoLoadEntities: true,
         synchronize: true,
         host: configService.get<string>('DB_HOST'),
